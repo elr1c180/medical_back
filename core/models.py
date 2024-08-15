@@ -15,6 +15,11 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+        # Make sure the fields required for a superuser are set
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
         return self.create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractBaseUser):
@@ -22,7 +27,8 @@ class CustomUser(AbstractBaseUser):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)  # Used to determine if the user can access the admin site
+    is_superuser = models.BooleanField(default=False)  # Used to determine if the user has all permissions
 
     objects = CustomUserManager()
 
@@ -31,6 +37,15 @@ class CustomUser(AbstractBaseUser):
 
     def __str__(self):
         return self.email
+
+    def has_perm(self, perm, obj=None):
+        # Check if the user has a specific permission
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        # Check if the user has permissions for the specified app
+        return self.is_superuser
+
 
 class Doctor(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='doctor_profile')
