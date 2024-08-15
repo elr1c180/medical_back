@@ -36,9 +36,9 @@ class RegisterDoctorSerializer(serializers.ModelSerializer):
         }
 
         # Создание профиля врача
-        Doctor.objects.create(user=user, **doctor_data)
+        doctor = Doctor.objects.create(user=user, **doctor_data)
 
-        return user
+        return doctor
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
