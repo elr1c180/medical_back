@@ -35,10 +35,14 @@ class RegisterDoctorSerializer(serializers.ModelSerializer):
             'phone_number': validated_data['phone_number']
         }
 
-        # Создание профиля врача
-        doctor = Doctor.objects.create(user=user, **doctor_data)
 
-        return doctor
+        Doctor.objects.create(user=user, **doctor_data)
+
+        doctor =  Doctor.objects.get(user=user)
+        if doctor:
+            return {'User created'}
+        else:
+            return {'User not created'}
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
