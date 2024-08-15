@@ -10,6 +10,8 @@ from .serializers import RegisterDoctorSerializer, LoginSerializer, MedicationSe
 @api_view(['POST'])
 def register_doctor(request):
     serializer = RegisterDoctorSerializer(data=request.data)
+    print(serializer)
+    print(request.data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)

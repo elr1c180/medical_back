@@ -3,7 +3,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import Doctor
+from .models import Doctor, Medication
 
 User = get_user_model()
 
@@ -51,10 +51,6 @@ class LoginSerializer(serializers.Serializer):
                 'refresh': str(RefreshToken.for_user(user))
             }
         raise serializers.ValidationError('Both email and password are required')
-
-# serializers.py
-from rest_framework import serializers
-from .models import Medication
 
 class MedicationSerializer(serializers.ModelSerializer):
     class Meta:
