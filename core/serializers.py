@@ -5,39 +5,41 @@ from .models import Doctor, Medication
 
 User = get_user_model()
 
-class RegisterDoctorSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     first_name = serializers.CharField()
     last_name = serializers.CharField()
+
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'password']
+
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
+
+class DoctorSerializer(serializers.ModelSerializer):
     birth_date = serializers.DateField()
     phone_number = serializers.CharField()
 
     class Meta:
-        model = User
-        fields = ['email', 'first_name', 'last_name', 'password', 'birth_date', 'phone_number']
+        model = Doctor
+        fields = ['birth_date', 'phone_number']
+
+class RegisterDoctorSerializer(serializers.Serializer):
+    user = UserSerializer()
+    doctor = DoctorSerializer()
 
     def create(self, validated_data):
-        # Извлечение данных для создания пользователя
-        user_data = {
-            'email': validated_data['email'],
-            'first_name': validated_data['first_name'],
-            'last_name': validated_data['last_name'],
-            'password': validated_data['password']
-        }
+        user_data = validated_data['user']
+        doctor_data = validated_data['doctor']
         
         # Создание пользователя
         user = User.objects.create_user(**user_data)
         
-        # Извлечение данных для создания профиля врача
-        doctor_data = {
-            'birth_date': validated_data['birth_date'],
-            'phone_number': validated_data['phone_number']
-        }
-
         # Создание профиля врача
         Doctor.objects.create(user=user, **doctor_data)
-
+        
         return user
 
 class LoginSerializer(serializers.Serializer):
