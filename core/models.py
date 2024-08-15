@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
+from django.db import models
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -15,7 +16,6 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        # Make sure the fields required for a superuser are set
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
@@ -27,8 +27,8 @@ class CustomUser(AbstractBaseUser):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)  # Used to determine if the user can access the admin site
-    is_superuser = models.BooleanField(default=False)  # Used to determine if the user has all permissions
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
@@ -44,8 +44,6 @@ class CustomUser(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return self.is_superuser
 
-
-
 class Doctor(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='doctor_profile')
     birth_date = models.DateField()
@@ -53,6 +51,7 @@ class Doctor(models.Model):
 
     def __str__(self):
         return f'{self.user.last_name} {self.user.first_name}'
+
 
 class Patient(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='patients')

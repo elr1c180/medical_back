@@ -18,22 +18,26 @@ class RegisterDoctorSerializer(serializers.ModelSerializer):
         fields = ['email', 'first_name', 'last_name', 'password', 'birth_date', 'phone_number']
 
     def create(self, validated_data):
-        # Создание пользователя
+        # Извлечение данных для создания пользователя
         user_data = {
             'email': validated_data['email'],
             'first_name': validated_data['first_name'],
             'last_name': validated_data['last_name'],
             'password': validated_data['password']
         }
+        
+        # Создание пользователя
         user = User.objects.create_user(**user_data)
         
+        # Извлечение данных для создания профиля врача
+        doctor_data = {
+            'birth_date': validated_data['birth_date'],
+            'phone_number': validated_data['phone_number']
+        }
+
         # Создание профиля врача
-        Doctor.objects.create(
-            user=user,
-            birth_date=validated_data['birth_date'],
-            phone_number=validated_data['phone_number']
-        )
-        
+        Doctor.objects.create(user=user, **doctor_data)
+
         return user
 
 class LoginSerializer(serializers.Serializer):
