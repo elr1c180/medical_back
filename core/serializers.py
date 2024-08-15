@@ -6,22 +6,11 @@ from .models import Doctor, Medication
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
-
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name', 'password']
 
-    def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
-
 class DoctorSerializer(serializers.ModelSerializer):
-    birth_date = serializers.DateField()
-    phone_number = serializers.CharField()
-
     class Meta:
         model = Doctor
         fields = ['birth_date', 'phone_number']
@@ -34,13 +23,35 @@ class RegisterDoctorSerializer(serializers.Serializer):
         user_data = validated_data['user']
         doctor_data = validated_data['doctor']
         
-        # Создание пользователя
+        # Create the user
         user = User.objects.create_user(**user_data)
         
-        # Создание профиля врача
+        # Create the doctor's profile
         Doctor.objects.create(user=user, **doctor_data)
         
         return user
+
+    def to_internal_value(self, data):
+        # This method ensures that nested serializers are handled properly
+        user_data = data.get('user')
+        doctor_data = data.get('doctor')
+
+        if not user_data:
+            raise serializers.ValidationError({'user': 'This field is required.'})
+        if not doctor_data:
+            raise serializers.ValidationError({'doctor': 'This field is required.'})
+
+        # Pass nested data to their respective serializers
+        user_serializer = UserSerializer(data=user_data)
+        doctor_serializer = DoctorSerializer(data=doctor_data)
+
+        user_serializer.is_valid(raise_exception=True)
+        doctor_serializer.is_valid(raise_exception=True)
+
+        return {
+            'user': user_serializer.validated_data,
+            'doctor': doctor_serializer.validated_data
+        }
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
