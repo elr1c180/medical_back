@@ -39,12 +39,11 @@ class CustomUser(AbstractBaseUser):
         return self.email
 
     def has_perm(self, perm, obj=None):
-        # Check if the user has a specific permission
         return self.is_superuser
 
     def has_module_perms(self, app_label):
-        # Check if the user has permissions for the specified app
         return self.is_superuser
+
 
 
 class Doctor(models.Model):
