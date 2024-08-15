@@ -1,5 +1,3 @@
-# serializers.py
-
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -25,17 +23,21 @@ class RegisterDoctorSerializer(serializers.ModelSerializer):
         fields = ['email', 'first_name', 'last_name', 'password', 'birth_date', 'phone_number']
 
     def create(self, validated_data):
+        # Создаем пользователя
         user = User.objects.create_user(
             email=validated_data['email'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
             password=validated_data['password']
         )
+
+        # Создаем профиль врача
         Doctor.objects.create(
             user=user,
             birth_date=validated_data['birth_date'],
             phone_number=validated_data['phone_number']
         )
+        
         return user
 
 class LoginSerializer(serializers.Serializer):
@@ -45,10 +47,8 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         email = data.get('email')
         password = data.get('password')
-        print(email, password)
         if email and password:
             user = authenticate(email=email, password=password)
-
             if not user:
                 raise serializers.ValidationError('Invalid credentials')
             return {
