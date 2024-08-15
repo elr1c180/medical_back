@@ -21,6 +21,8 @@ def register_doctor(request):
 @api_view(['POST'])
 def login_doctor(request):
     serializer = LoginSerializer(data=request.data)
+    print(serializer)
+    print(request.data)
     if serializer.is_valid():
         data = serializer.validated_data
         return Response({
