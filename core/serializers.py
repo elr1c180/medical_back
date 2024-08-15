@@ -15,7 +15,7 @@ class RegisterDoctorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'password', 'birth_date', 'phone_number']
+        fields = ['email', 'first_name', 'last_name', 'password']
 
     def create(self, validated_data):
         # Извлекаем данные для создания пользователя
