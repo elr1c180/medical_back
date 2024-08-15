@@ -1,10 +1,11 @@
-# views.py
-
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+from .models import Medication
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
-from .serializers import RegisterDoctorSerializer, LoginSerializer
+from .serializers import RegisterDoctorSerializer, LoginSerializer, MedicationSerializer
 
 @api_view(['POST'])
 def register_doctor(request):
@@ -30,3 +31,14 @@ def login_doctor(request):
             'refresh': data['refresh']
         }, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MedicationListView(generics.ListAPIView):
+    serializer_class = MedicationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Получаем текущего пользователя
+        user = self.request.user
+        # Возвращаем все препараты, связанные с врачом текущего пользователя
+        return Medication.objects.filter(doctor__user=user)

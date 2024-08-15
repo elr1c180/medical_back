@@ -51,3 +51,12 @@ class LoginSerializer(serializers.Serializer):
                 'refresh': str(RefreshToken.for_user(user))
             }
         raise serializers.ValidationError('Both email and password are required')
+
+# serializers.py
+from rest_framework import serializers
+from .models import Medication
+
+class MedicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Medication
+        fields = ['id', 'name', 'quantity']
