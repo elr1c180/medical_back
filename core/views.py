@@ -11,12 +11,8 @@ from .serializers import RegisterDoctorSerializer, LoginSerializer, MedicationSe
 def register_doctor(request):
     serializer = RegisterDoctorSerializer(data=request.data)
     if serializer.is_valid():
-        user = serializer.save()
-        return Response({
-            'user': serializer.data,
-            'access': str(RefreshToken.for_user(user).access_token),
-            'refresh': str(RefreshToken.for_user(user))
-        }, status=status.HTTP_201_CREATED)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
