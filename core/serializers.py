@@ -17,10 +17,12 @@ class RegisterDoctorSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     first_name = serializers.CharField()
     last_name = serializers.CharField()
+    birth_date = serializers.DateField()
+    phone_number = serializers.CharField()
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'password']
+        fields = ['email', 'first_name', 'last_name', 'password', 'birth_date', 'phone_number']
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -29,7 +31,11 @@ class RegisterDoctorSerializer(serializers.ModelSerializer):
             last_name=validated_data['last_name'],
             password=validated_data['password']
         )
-        Doctor.objects.create(user=user)
+        Doctor.objects.create(
+            user=user,
+            birth_date=validated_data['birth_date'],
+            phone_number=validated_data['phone_number']
+        )
         return user
 
 class LoginSerializer(serializers.Serializer):
